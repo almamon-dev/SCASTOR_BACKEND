@@ -15,8 +15,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -26,8 +24,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
         ]);
 
-        \App\Models\Recipe::factory(20)->create(); // Create 20 random recipes
+        \App\Models\Recipe::factory(20)->create();
 
-        User::factory(5)->create(); // Create 5 random users
+        User::factory(5)->create();
     }
 }

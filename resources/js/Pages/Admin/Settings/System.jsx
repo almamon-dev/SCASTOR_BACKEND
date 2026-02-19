@@ -17,11 +17,25 @@ import {
     Code,
     MessageSquare,
     CheckCircle2,
+    Eye,
+    EyeOff,
+    Copy,
+    Check,
 } from "lucide-react";
 import RichTextEditor from "@/Components/RichTextEditor";
 
 export default function SystemSettings({ settings }) {
     const [activeTab, setActiveTab] = useState("email");
+    const [showKey, setShowKey] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        if (data.openai_api_key) {
+            navigator.clipboard.writeText(data.openai_api_key);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
 
     const { data, setData, post, processing, errors } = useForm({
         mail_driver: settings.mail_driver || "smtp",
@@ -260,12 +274,11 @@ export default function SystemSettings({ settings }) {
                                     OpenAI API Key
                                 </label>
                                 <div className="relative">
-                                    <Key
-                                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300"
-                                        size={16}
-                                    />
+                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300">
+                                        <Key size={16} />
+                                    </div>
                                     <input
-                                        type="password"
+                                        type={showKey ? "text" : "password"}
                                         value={data.openai_api_key}
                                         onChange={(e) =>
                                             setData(
@@ -273,9 +286,42 @@ export default function SystemSettings({ settings }) {
                                                 e.target.value,
                                             )
                                         }
-                                        className="w-full bg-slate-50/50 border-slate-200 rounded-lg pl-10 pr-4 py-2 text-[14px] focus:bg-white focus:ring-2 focus:ring-[#673ab7]/10 focus:border-[#673ab7] transition-all"
-                                        placeholder="*************************"
+                                        className="w-full bg-slate-50/50 border-slate-200 rounded-lg pl-10 pr-20 py-2 text-[14px] focus:bg-white focus:ring-2 focus:ring-[#673ab7]/10 focus:border-[#673ab7] transition-all"
+                                        placeholder="sk-..."
                                     />
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowKey(!showKey)}
+                                            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-all"
+                                            title={
+                                                showKey
+                                                    ? "Hide API Key"
+                                                    : "Show API Key"
+                                            }
+                                        >
+                                            {showKey ? (
+                                                <EyeOff size={14} />
+                                            ) : (
+                                                <Eye size={14} />
+                                            )}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleCopy}
+                                            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-all"
+                                            title="Copy API Key"
+                                        >
+                                            {copied ? (
+                                                <Check
+                                                    size={14}
+                                                    className="text-emerald-500"
+                                                />
+                                            ) : (
+                                                <Copy size={14} />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

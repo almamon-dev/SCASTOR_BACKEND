@@ -31,12 +31,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/settings/system', [SystemSettingsController::class, 'edit'])->name('settings.system');
         Route::post('/settings/system', [SystemSettingsController::class, 'update'])->name('settings.system.update');
-        
         // Categories
         Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
-
         // Recipes
         Route::resource('recipes', \App\Http\Controllers\Admin\RecipeController::class);
+        // Users
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->only(['index', 'destroy']);
     });
 });
 

@@ -140,6 +140,12 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             icon: <Utensils size={18} />,
             route: "admin.recipes.*",
         },
+        {
+            label: "Users",
+            path: "/admin/users",
+            icon: <Users size={18} />,
+            route: "admin.users.*",
+        },
     ];
 
     const hasPermission = (permission) => {
