@@ -13,10 +13,9 @@ jobs:
           fetch-depth: 0
 
       - name: FTP-Deploy-Action
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER_NAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-      
-         
+          protocol: ftp
