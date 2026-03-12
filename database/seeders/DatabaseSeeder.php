@@ -23,9 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CategorySeeder::class,
         ]);
-
         \App\Models\Recipe::factory(20)->create();
-
         User::factory(5)->create();
     }
 }

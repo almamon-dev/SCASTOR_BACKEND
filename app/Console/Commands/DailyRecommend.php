@@ -22,26 +22,20 @@ class DailyRecommend extends Command
 
         $this->info("Starting recommendation generation for $today...");
 
-        // 1. Generate Global Recommendations (user_id = null) - DISABLED
-        // foreach ($mealTypes as $type) {
-        // ... (removed)
-        // }
         User::chunk(100, function ($users) use ($today, $mealTypes) {
             foreach ($users as $user) {
                 foreach ($mealTypes as $type) {
-                    // Check if schedule already exists for this user
                     $exists = RecommendationSchedule::where('scheduled_for', $today)
                         ->where('meal_type', $type)
                         ->where('user_id', $user->id)
                         ->exists();
 
-                    if (!$exists) {
+                    if (! $exists) {
                         $recipeToRecommend = null;
 
-                        // 1. Try to find a favorite for this meal type
                         $favorite = Recipe::whereHas('favorites', function ($q) use ($user) {
-                                $q->where('user_id', $user->id);
-                            })
+                            $q->where('user_id', $user->id);
+                        })
                             ->where('status', 1)
                             ->whereJsonContains('meal_types', $type)
                             ->inRandomOrder()
@@ -50,14 +44,12 @@ class DailyRecommend extends Command
                         if ($favorite) {
                             $recipeToRecommend = $favorite;
                         } else {
-                            // 2. If no favorite, pick a random active recipe for this meal type
                             $random = Recipe::where('status', 1)
                                 ->whereJsonContains('meal_types', $type)
                                 ->inRandomOrder()
                                 ->first();
-                            
-                            // 3. Absolute Fallback
-                            if (!$random) {
+
+                            if (! $random) {
                                 $random = Recipe::where('status', 1)->inRandomOrder()->first();
                             }
 
