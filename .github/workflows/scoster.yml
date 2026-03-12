@@ -19,3 +19,14 @@ jobs:
           username: ${{ secrets.FTP_USER_NAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/vendor/**
+            **/storage/*.log
+            .env
+            public/storage
+            .DS_Store
+            Thumbs.db
