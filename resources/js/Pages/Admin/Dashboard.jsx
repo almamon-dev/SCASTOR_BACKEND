@@ -22,14 +22,6 @@ export default function Dashboard({
     const [showKey, setShowKey] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const handleCopy = () => {
-        if (openai_api_key) {
-            navigator.clipboard.writeText(openai_api_key);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
-
     return (
         <AdminLayout>
             <Head title="Dashboard" />
@@ -151,13 +143,14 @@ export default function Dashboard({
                     <div className="space-y-6">
                         {/* API Key Card */}
                         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                            <h3 className="font-semibold text-gray-900 mb-4">
-                                OpenAI API Key
+                            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                OpenAI API Generation
                             </h3>
                             <div className="space-y-4">
-                                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className="p-3 bg-gray-50/50 rounded-lg border border-gray-100">
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                                             Current Key
                                         </span>
                                         <div className="flex gap-2">
@@ -165,7 +158,7 @@ export default function Dashboard({
                                                 onClick={() =>
                                                     setShowKey(!showKey)
                                                 }
-                                                className="p-1 hover:bg-gray-200 rounded text-gray-500 transition-colors"
+                                                className="p-1 hover:bg-white rounded text-gray-400 hover:text-gray-600 transition-all border border-transparent hover:border-gray-100"
                                                 title={
                                                     showKey
                                                         ? "Hide Key"
@@ -179,8 +172,14 @@ export default function Dashboard({
                                                 )}
                                             </button>
                                             <button
-                                                onClick={handleCopy}
-                                                className="p-1 hover:bg-gray-200 rounded text-gray-500 transition-colors"
+                                                onClick={() => {
+                                                    if (openai_api_key) {
+                                                        navigator.clipboard.writeText(openai_api_key);
+                                                        setCopied(true);
+                                                        setTimeout(() => setCopied(false), 2000);
+                                                    }
+                                                }}
+                                                className="p-1 hover:bg-white rounded text-gray-400 hover:text-gray-600 transition-all border border-transparent hover:border-gray-100"
                                                 title="Copy Key"
                                             >
                                                 {copied ? (
@@ -194,13 +193,13 @@ export default function Dashboard({
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="font-mono text-xs text-gray-700 break-all">
+                                    <div className="font-mono text-[11px] text-gray-600 break-all bg-white p-2 rounded border border-gray-50">
                                         {openai_api_key ? (
                                             showKey ? (
                                                 openai_api_key
                                             ) : (
-                                                "sk-..." +
-                                                openai_api_key.slice(-4)
+                                                "sk-proj-..." +
+                                                openai_api_key.slice(-8)
                                             )
                                         ) : (
                                             <span className="text-gray-400 italic">
@@ -209,9 +208,8 @@ export default function Dashboard({
                                         )}
                                     </div>
                                 </div>
-                                <p className="text-xs text-gray-500">
-                                    This key is used for AI-powered features.
-                                    Keep it secure.
+                                <p className="text-[11px] text-gray-400">
+                                    This key powers the Scastor OpenAI Recipe Generator.
                                 </p>
                             </div>
                         </div>

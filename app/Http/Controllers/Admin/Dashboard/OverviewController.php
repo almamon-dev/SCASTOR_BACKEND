@@ -60,7 +60,7 @@ class OverviewController extends Controller
                 'activeExperiences' => 'High',
                 'verifiedSkills' => 'Active',
             ],
-            'openai_api_key' => env('OPENAI_API_KEY'),
+            'openai_api_key' => config('services.openai.key'),
         ]);
     }
 }

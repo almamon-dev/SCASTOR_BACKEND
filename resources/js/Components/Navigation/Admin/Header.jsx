@@ -77,13 +77,6 @@ const Header = ({ onMenuClick }) => {
                     >
                         <Home size={20} strokeWidth={1.5} />
                     </Link>
-                    <button
-                        className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-xl relative"
-                        title="Notifications"
-                    >
-                        <Bell size={20} strokeWidth={1.5} />
-                        <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-                    </button>
                 </div>
 
                 {/* User Profile Dropdown */}
@@ -142,8 +135,8 @@ const Header = ({ onMenuClick }) => {
                             <div className="p-2">
                                 <DropdownLink
                                     icon={Settings}
-                                    label="General Settings"
-                                    href={route("admin.settings.edit")}
+                                    label="System Settings"
+                                    href={route("admin.settings.system")}
                                 />
                                 <DropdownLink
                                     icon={Home}

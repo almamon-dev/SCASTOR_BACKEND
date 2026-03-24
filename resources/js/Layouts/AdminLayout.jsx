@@ -1,10 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { usePage } from '@inertiajs/react';
 import Header from "../Components/Navigation/Admin/Header";
 import Sidebar from "../Components/Navigation/Admin/Sidebar";
+import { Toaster, toast } from 'react-hot-toast';
 
 export default function AdminLayout({ children }) {
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false); // Initially open/expanded
+    const { props } = usePage();
+    const flash = props.flash || {};
+
+    useEffect(() => {
+        if (flash.success) {
+            toast.success(flash.success);
+        }
+        if (flash.error) {
+            toast.error(flash.error);
+        }
+        if (flash.message) {
+            toast(flash.message);
+        }
+    }, [flash]);
 
     // Constants for width
     const expandedWidth = "260px";
@@ -12,6 +28,7 @@ export default function AdminLayout({ children }) {
 
     return (
         <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
+            <Toaster position="top-right" gutter={8} containerStyle={{ zIndex: 999999 }} />
             {/* Mobile Overlay */}
             {isMobileOpen && (
                 <div

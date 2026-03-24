@@ -25,8 +25,8 @@ Route::middleware(['advanced.throttle', 'auth:sanctum'])->group(function () {
     // AI Recipe Generator
     Route::post('recipe/ai-assist', [\App\Http\Controllers\API\AiRecipeController::class, 'generate']);
     Route::get('recipe/ai-assist/{slug}', [\App\Http\Controllers\API\AiRecipeController::class, 'show']);
-    Route::get('recipe/ai-assist/{slug}', [\App\Http\Controllers\API\AiRecipeController::class, 'show']);
     Route::post('recipe/ai-assist/{id}/save', [\App\Http\Controllers\API\AiRecipeController::class, 'storeToKitchen']);
+    Route::delete('recipe/ai-assist/{id}', [\App\Http\Controllers\API\AiRecipeController::class, 'destroy']);
 
     // AI Chat
     Route::get('recipe/ai-chat/start', [\App\Http\Controllers\API\AiChatController::class, 'startChat']);
@@ -41,5 +41,7 @@ Route::middleware(['advanced.throttle', 'auth:sanctum'])->group(function () {
     // My Kitchen (Saved Recipes)
     Route::get('my-kitchen', [\App\Http\Controllers\API\MyKitchenController::class, 'index']);
     Route::post('my-kitchen', [\App\Http\Controllers\API\MyKitchenController::class, 'store']);
-    Route::delete('my-kitchen/{recipeId}', [\App\Http\Controllers\API\MyKitchenController::class, 'destroy']);
+    Route::delete('my-kitchen/favorite/{recipeId}', [\App\Http\Controllers\API\MyKitchenController::class, 'removeFavorite']);
+    Route::delete('my-kitchen/ai-recipe/{id}', [\App\Http\Controllers\API\MyKitchenController::class, 'removeAiRecipe']);
+
 });

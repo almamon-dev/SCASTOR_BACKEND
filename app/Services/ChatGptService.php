@@ -15,9 +15,10 @@ class ChatGptService
 
     public function __construct()
     {
-        $this->apiKey = config('services.openai.key') ?? env('OPENAI_API_KEY');
-        $this->model = config('services.openai.model', 'gpt-3.5-turbo');
+        $this->apiKey = config('services.openai.key') ?? env('OPEN_API_KEY');
+        $this->model = config('services.openai.model', 'gpt-4o-mini');
     }
+
 
     /**
      * Generate a culinary response based on ingredients
@@ -52,26 +53,28 @@ class ChatGptService
                         ['role' => 'user', 'content' => $prompt],
                     ],
                     'temperature' => 0.7,
-                    // 'response_format' => ['type' => 'json_object'] // Enable if model supports it
                 ]);
 
             if ($response->failed()) {
+                $errorData = $response->json('error.message', 'Unknown OpenAI API Error');
                 Log::error('ChatGptService Error: '.$response->body());
 
-                return null;
+                throw new \Exception("OpenAI API: ".$errorData);
             }
 
             $content = $response->json('choices.0.message.content');
 
             // Clean up code blocks if present (```json ... ```)
             $content = preg_replace('/^```json\s*|\s*```$/', '', $content);
+            $content = trim($content);
 
             $data = json_decode($content, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 Log::error('ChatGptService JSON Decode Error: '.json_last_error_msg());
+                Log::error('ChatGptContent: '.$content);
 
-                return null;
+                throw new \Exception("Failed to parse AI response: ".json_last_error_msg());
             }
 
             return $data;
@@ -79,7 +82,8 @@ class ChatGptService
         } catch (\Exception $e) {
             Log::error('ChatGptService Exception: '.$e->getMessage());
 
-            return null;
+            throw $e;
         }
     }
 }
+

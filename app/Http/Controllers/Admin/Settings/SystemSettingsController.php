@@ -4,25 +4,39 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Artisan;
+use Inertia\Inertia;
 
 class SystemSettingsController extends Controller
 {
     public function edit()
     {
+        $openAiKey = config('services.openai.key') ?: env('OPEN_API_KEY');
+        
+        // If not found in environment, try manually parsing .env (in case it is commented out)
+        if (empty($openAiKey)) {
+            $envPath = base_path('.env');
+            if (file_exists($envPath)) {
+                $envContent = file_get_contents($envPath);
+                if (preg_match('/^(?:#\s*)?OPEN_API_KEY=(.*)$/m', $envContent, $matches)) {
+                    $openAiKey = trim($matches[1], " \"'");
+                }
+            }
+        }
+
         return Inertia::render('Admin/Settings/System', [
             'settings' => [
-                'mail_driver' => env('MAIL_MAILER', 'smtp'),
-                'mail_host' => env('MAIL_HOST', ''),
-                'mail_port' => env('MAIL_PORT', '587'),
-                'mail_username' => env('MAIL_USERNAME', ''),
-                'mail_password' => env('MAIL_PASSWORD', ''),
-                'mail_encryption' => env('MAIL_ENCRYPTION', 'tls'),
-                'mail_from_address' => env('MAIL_FROM_ADDRESS', ''),
-                'mail_from_name' => env('MAIL_FROM_NAME', ''),
-                'openai_api_key' => env('OPENAI_API_KEY', ''),
-            ]
+                'mail_driver' => config('mail.mailer', 'smtp'),
+                'mail_host' => config('mail.mailers.smtp.host', ''),
+                'mail_port' => config('mail.mailers.smtp.port', '587'),
+                'mail_username' => config('mail.mailers.smtp.username', ''),
+                'mail_password' => config('mail.mailers.smtp.password', ''),
+                'mail_encryption' => config('mail.mailers.smtp.encryption', 'tls'),
+                'mail_from_address' => config('mail.from.address', ''),
+                'mail_from_name' => config('mail.from.name', ''),
+                'openai_api_key' => $openAiKey ?: '',
+                'openai_model' => config('services.openai.model', 'gpt-4o-mini'),
+            ],
         ]);
     }
 
@@ -38,6 +52,7 @@ class SystemSettingsController extends Controller
             'mail_from_address' => 'required|email',
             'mail_from_name' => 'required|string',
             'openai_api_key' => 'nullable|string',
+            'openai_model' => 'nullable|string',
         ]);
 
         $envData = [
@@ -49,7 +64,8 @@ class SystemSettingsController extends Controller
             'MAIL_ENCRYPTION' => $validated['mail_encryption'] ?? '',
             'MAIL_FROM_ADDRESS' => $validated['mail_from_address'],
             'MAIL_FROM_NAME' => $validated['mail_from_name'],
-            'OPENAI_API_KEY' => $validated['openai_api_key'] ?? '',
+            'OPEN_API_KEY' => $validated['openai_api_key'] ?? '',
+            'OPENAI_MODEL' => $validated['openai_model'] ?? 'gpt-4o-mini',
         ];
 
         $this->updateEnv($envData);
@@ -64,23 +80,25 @@ class SystemSettingsController extends Controller
     {
         $path = base_path('.env');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return;
         }
 
         $content = file_get_contents($path);
 
         foreach ($data as $key => $value) {
-            // Escape special characters in value for regex
-            $escapedValue = str_replace('$', '\$', $value);
-            
-            // If value contains spaces or special chars, wrap in quotes
-            if (preg_match('/\s/', $value) || preg_match('/[#&]/', $value)) {
-                $value = '"' . $value . '"';
+            $value = trim($value);
+
+            // Wrap in quotes if it contains sensitive characters or spaces
+            if (str_contains($value, ' ') || preg_match('/[#&"\'$]/', $value)) {
+                $value = '"'.str_replace('"', '\"', $value).'"';
             }
 
-            if (preg_match("/^{$key}=/m", $content)) {
-                $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
+            $pattern = "/^(?:#\s*)?{$key}=.*/m";
+            $replace = "{$key}={$value}";
+
+            if (preg_match($pattern, $content)) {
+                $content = preg_replace($pattern, $replace, $content);
             } else {
                 $content .= "\n{$key}={$value}";
             }
@@ -88,4 +106,5 @@ class SystemSettingsController extends Controller
 
         file_put_contents($path, $content);
     }
+
 }

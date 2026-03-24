@@ -23,13 +23,15 @@ import {
     Check,
 } from "lucide-react";
 import RichTextEditor from "@/Components/RichTextEditor";
+import toast from "react-hot-toast";
 
 export default function SystemSettings({ settings }) {
     const [activeTab, setActiveTab] = useState("email");
     const [showKey, setShowKey] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const handleCopy = () => {
+
+    const handleCopyOpenAI = () => {
         if (data.openai_api_key) {
             navigator.clipboard.writeText(data.openai_api_key);
             setCopied(true);
@@ -47,12 +49,16 @@ export default function SystemSettings({ settings }) {
         mail_from_address: settings.mail_from_address || "",
         mail_from_name: settings.mail_from_name || "",
         openai_api_key: settings.openai_api_key || "",
+        openai_model: settings.openai_model || "gpt-4o-mini",
         email_footer: settings.email_footer || "",
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route("admin.settings.system.update"));
+        post(route("admin.settings.system.update"), {
+            onSuccess: () => toast.success("System settings updated successfully!"),
+            onError: () => toast.error("Failed to update settings. Please check the form."),
+        });
     };
 
     const tabs = [
@@ -269,7 +275,8 @@ export default function SystemSettings({ settings }) {
                                 <div className="w-1.5 h-1.5 rounded-full bg-[#00b090]"></div>
                                 External Integrations
                             </h3>
-                            <div className="space-y-1.5">
+
+                            <div className="space-y-1.5 pt-4">
                                 <label className="text-[13px] font-semibold text-slate-600">
                                     OpenAI API Key
                                 </label>
@@ -287,7 +294,7 @@ export default function SystemSettings({ settings }) {
                                             )
                                         }
                                         className="w-full bg-slate-50/50 border-slate-200 rounded-lg pl-10 pr-20 py-2 text-[14px] focus:bg-white focus:ring-2 focus:ring-[#673ab7]/10 focus:border-[#673ab7] transition-all"
-                                        placeholder="sk-..."
+                                        placeholder="sk-proj-..."
                                     />
                                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                                         <button
@@ -308,7 +315,7 @@ export default function SystemSettings({ settings }) {
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={handleCopy}
+                                            onClick={handleCopyOpenAI}
                                             className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-all"
                                             title="Copy API Key"
                                         >
@@ -322,6 +329,29 @@ export default function SystemSettings({ settings }) {
                                             )}
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5 pt-4">
+                                <label className="text-[13px] font-semibold text-slate-600">
+                                    OpenAI Model
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300">
+                                        <Cpu size={16} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={data.openai_model}
+                                        onChange={(e) =>
+                                            setData(
+                                                "openai_model",
+                                                e.target.value,
+                                            )
+                                        }
+                                        className="w-full bg-slate-50/50 border-slate-200 rounded-lg pl-10 pr-20 py-2 text-[14px] focus:bg-white focus:ring-2 focus:ring-[#673ab7]/10 focus:border-[#673ab7] transition-all"
+                                        placeholder="gpt-..."
+                                    />
                                 </div>
                             </div>
                         </div>

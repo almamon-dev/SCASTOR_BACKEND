@@ -83,9 +83,9 @@ class MyKitchenController extends Controller
     }
 
     /**
-     * Remove a recipe from My Kitchen.
+     * Remove a standard favorite recipe from My Kitchen.
      */
-    public function destroy($recipeId)
+    public function removeFavorite($recipeId)
     {
         $user = Auth::user();
 
@@ -101,4 +101,27 @@ class MyKitchenController extends Controller
 
         return $this->sendResponse([], __('Recipe removed from My Kitchen Successfully'));
     }
+
+    /**
+     * Remove an AI-generated recipe from My Kitchen.
+     */
+    public function removeAiRecipe($id)
+    {
+        $user = Auth::user();
+
+        $recipe = \App\Models\AiGeneratedRecipe::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $recipe) {
+            return $this->sendError(__('AI Recipe not found in My Kitchen'));
+        }
+
+        // Sets is_saved to false so it's no longer in the kitchen list
+        $recipe->update(['is_saved' => false]);
+        
+        return $this->sendResponse([], __('AI Recipe removed from My Kitchen Successfully'));
+    }
 }
+
+

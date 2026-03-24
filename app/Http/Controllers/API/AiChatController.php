@@ -70,13 +70,20 @@ class AiChatController extends Controller
             ->flatten(1)
             ->toArray();
 
-        // Call AI Service
-        $aiResponse = $this->chatService->sendMessage($message, $history);
+        try {
+            // Call AI Service
+            $aiResponse = $this->chatService->sendMessage($message, $history);
 
-        if (!$aiResponse) {
+            if (!$aiResponse) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'AI failed to respond. Service returned empty response.',
+                ], 500);
+            }
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'AI failed to respond. Please try again later.',
+                'message' => 'AI Error: ' . $e->getMessage(),
             ], 500);
         }
 

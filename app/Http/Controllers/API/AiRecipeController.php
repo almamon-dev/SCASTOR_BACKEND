@@ -11,11 +11,11 @@ class AiRecipeController extends Controller
 {
     use ApiResponse;
 
-    protected $chatGptService;
+    protected $aiService;
 
-    public function __construct(ChatGptService $chatGptService)
+    public function __construct(ChatGptService $aiService)
     {
-        $this->chatGptService = $chatGptService;
+        $this->aiService = $aiService;
     }
 
     public function generate(Request $request)
@@ -32,11 +32,16 @@ class AiRecipeController extends Controller
             ? $request->ingredients
             : array_map('trim', explode(',', $request->ingredients));
 
-        $recipeData = $this->chatGptService->generateRecipe($ingredients);
+        try {
+            $recipeData = $this->aiService->generateRecipe($ingredients);
 
-        if (! $recipeData) {
-            return $this->sendError('Failed to generate recipe. Please try again.', [], 500);
+            if (! $recipeData) {
+                return $this->sendError('Failed to generate recipe. Service returned no data.', [], 500);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('AI Generation Error: '.$e->getMessage(), [], 500);
         }
+
 
         // Store in AiGeneratedRecipe Table
         try {
@@ -92,9 +97,6 @@ class AiRecipeController extends Controller
         return $this->sendResponse($recipe, 'Recipe details fetched successfully.');
     }
 
-    /**
-     * Save AI generated recipe to My Kitchen
-     */
     public function storeToKitchen($id)
     {
         $user = request()->user();
@@ -110,4 +112,24 @@ class AiRecipeController extends Controller
 
         return $this->sendResponse($recipe, 'Recipe saved to My Kitchen successfully.');
     }
+
+    /**
+     * Remove AI generated recipe.
+     */
+    public function destroy($id)
+    {
+        $user = request()->user();
+        $recipe = \App\Models\AiGeneratedRecipe::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $recipe) {
+            return $this->sendError('AI recipe not found or access denied.', [], 404);
+        }
+
+        $recipe->delete();
+
+        return $this->sendResponse([], 'AI recipe removed successfully.');
+    }
 }
+

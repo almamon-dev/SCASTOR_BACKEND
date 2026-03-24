@@ -11,12 +11,12 @@ class AiChatService
 
     protected string $model;
 
-    protected string $baseUrl = 'https://api.openai.com/v1';
+    protected string $baseUrl = 'https://api.openai.com/v1/chat/completions';
 
     public function __construct()
     {
-        $this->apiKey = config('services.openai.key') ?? env('OPENAI_API_KEY');
-        $this->model = config('services.openai.model', 'gpt-3.5-turbo');
+        $this->apiKey = config('services.openai.key') ?? env('OPEN_API_KEY');
+        $this->model = config('services.openai.model', 'gpt-4o-mini');
     }
 
     /**
@@ -30,35 +30,37 @@ class AiChatService
         if (empty($this->apiKey)) {
             Log::error('AiChatService: API Key is missing.');
 
-            return 'System Error: AI service is currently unavailable.';
+            throw new \Exception('OpenAI API Key is missing in system settings.');
         }
 
-        // Construct the messages array
-        $messages = [
-            ['role' => 'system', 'content' => 'You are "CASTORS AI Chef", a helpful and friendly culinary assistant. You help users with cooking tips, recipe ideas, and kitchen advice using CASTORS seasonings. Keep your answers concise yet helpful.'],
-        ];
+        $systemPrompt = 'You are "CASTORS AI Chef", a helpful and friendly culinary assistant. You help users with cooking tips, recipe ideas, and kitchen advice using CASTORS seasonings. Keep your answers concise yet helpful.';
 
-        // Append history if valid
-        if (! empty($history)) {
-            $messages = array_merge($messages, $history);
+        $messages = [['role' => 'system', 'content' => $systemPrompt]];
+        foreach ($history as $msg) {
+            if (isset($msg['role'])) {
+                $messages[] = [
+                    'role' => $msg['role'],
+                    'content' => $msg['content'],
+                ];
+            }
         }
 
-        // Append current user message
         $messages[] = ['role' => 'user', 'content' => $message];
 
         try {
             $response = Http::withToken($this->apiKey)
                 ->timeout(30)
-                ->post("{$this->baseUrl}/chat/completions", [
+                ->post($this->baseUrl, [
                     'model' => $this->model,
                     'messages' => $messages,
                     'temperature' => 0.7,
+                    'max_tokens' => 1024,
                 ]);
 
             if ($response->failed()) {
                 Log::error('AiChatService API Error: '.$response->body());
 
-                return null;
+                throw new \Exception('OpenAI API Error: '.$response->body());
             }
 
             return $response->json('choices.0.message.content');
@@ -66,7 +68,8 @@ class AiChatService
         } catch (\Exception $e) {
             Log::error('AiChatService Exception: '.$e->getMessage());
 
-            return null;
+            throw $e;
         }
     }
 }
+

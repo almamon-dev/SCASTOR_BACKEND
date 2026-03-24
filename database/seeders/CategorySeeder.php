@@ -13,9 +13,6 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        // Truncate to avoid duplicate entry errors on fresh seed or check existence
-        // Category::truncate(); // Be careful with foreign keys. 
-        // Better to use updateOrCreate or just create if fresh --seed is used.
 
         $categories = [
             ['name' => 'All purpose Seasoning', 'icon' => 'leaf'],

@@ -26,6 +26,7 @@ import {
     X as LucideX,
 } from "lucide-react";
 import RichTextEditor from "@/Components/RichTextEditor";
+import toast from "react-hot-toast";
 
 export default function General({ settings }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -71,8 +72,9 @@ export default function General({ settings }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route("admin.settings.update"), {
+        post(route("admin.settings.system.update"), {
             forceFormData: true,
+            onSuccess: () => toast.success("General settings updated!"),
         });
     };
 
