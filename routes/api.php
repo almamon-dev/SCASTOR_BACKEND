@@ -11,6 +11,7 @@ Route::prefix('auth')->middleware(['auth.rate.limit'])->group(function () {
     Route::post('reset-password', [\App\Http\Controllers\API\Auth\AuthApiController::class, 'resetPasswordApi']);
     Route::post('resend-otp', [\App\Http\Controllers\API\Auth\AuthApiController::class, 'resendOtpApi']);
     Route::post('verify-otp', [\App\Http\Controllers\API\Auth\AuthApiController::class, 'verifyOtpApi']);
+    Route::post('social-login', [\App\Http\Controllers\API\Auth\SocialAuthController::class, 'SocialLogin']);
 });
 
 // Recipes & Categories API

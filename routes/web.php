@@ -1,19 +1,13 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-
-// The root '/' route is now handled in routes/auth.php
-
 use App\Http\Controllers\Admin\Dashboard\OverviewController;
+use App\Http\Controllers\Admin\Settings\SystemSettingsController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', [OverviewController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-
-use App\Http\Controllers\Admin\Settings\SystemSettingsController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

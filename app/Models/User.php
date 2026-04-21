@@ -24,6 +24,8 @@ class User extends Authenticatable
         'avatar',
         'email_verified_at',
         'password',
+        'provider',
+        'provider_id',
         'is_verified',
         'verified_at',
         'is_online',
